@@ -17,7 +17,8 @@ def get_db_connection():
             host=os.getenv('DB_HOST'),
             database=os.getenv('DB_NAME'),
             user=os.getenv('DB_USER'),
-            password=os.getenv('DB_PASSWORD')
+            password=os.getenv('DB_PASSWORD'),
+            port=int(os.getenv('DB_PORT', 3306))
         )
         if connection.is_connected():
             return connection
@@ -29,6 +30,7 @@ def get_db_connection():
 def execute_query(query, params=()):
     connection = get_db_connection()
     if connection is None:
+        print("Error: Could not get database connection")
         return []
     
     try:
@@ -38,6 +40,8 @@ def execute_query(query, params=()):
         return results
     except Error as e:
         print(f"Error executing query: {e}")
+        print(f"Query: {query}")
+        print(f"Params: {params}")
         return []
     finally:
         if connection.is_connected():
@@ -50,10 +54,67 @@ def search():
     search_type = request.args.get('type')
     search_term = request.args.get('term')
     
-    # Placeholder query - replace with actual SQL function calls
     query = f"SELECT * FROM {search_type}s WHERE name LIKE %s"
     results = execute_query(query, (f"%{search_term}%",))
     return jsonify(results)
+
+@app.route('/api/label', methods=['GET'])
+def search_labels():
+    search_term = request.args.get('term')
+    try:
+        query = ""
+        results = execute_query(query, (search_term,))
+        print("API Response:", results)
+        return jsonify(results)
+    except Error as e:
+        print(f"Error in search_labels: {e}")
+        return jsonify({"error": str(e)}), 500
+    
+@app.route('/api/album', methods=['GET'])
+def search_albums():
+    search_term = request.args.get('term')
+    try:
+        query = ""
+        results = execute_query(query, (search_term,))
+        print("API Response:", results)
+        return jsonify(results)
+    except Error as e:
+        print(f"Error in search_albums: {e}")
+        return jsonify({"error": str(e)}), 500
+    
+@app.route('/api/song', methods=['GET'])
+def search_songs():
+    search_term = request.args.get('term')
+    try:
+        query = ""
+        results = execute_query(query, (search_term,))
+        print("API Response:", results)
+        return jsonify(results)
+    
+    except Error as e:
+        print(f"Error in search_songs: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/artist', methods=['GET'])
+def search_artists():
+    search_term = request.args.get('term')
+    try:
+        query = "CALL SearchArtists(%s)"
+        results = execute_query(query, (search_term,))
+        print("API Response:", results)
+        return jsonify(results)
+    except Error as e:
+        print(f"Error in search_artists: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/stats', methods=['GET'])
+def get_stats():
+    stats = {
+        'songs': execute_query("SELECT COUNT(*) as count FROM song")[0]['count'],
+        'artists': execute_query("SELECT COUNT(*) as count FROM artist")[0]['count'],
+        'albums': execute_query("SELECT COUNT(*) as count FROM album")[0]['count']
+    }
+    return jsonify(stats)
 
 @app.route('/api/collaborations', methods=['GET'])
 def get_collaborations():
@@ -195,4 +256,4 @@ def get_top_genres():
     return jsonify(results)
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=int(os.getenv('PORT', 5000)))
+    app.run(debug=True, host='0.0.0.0', port=int(os.getenv('DB_PORT', 5000)))
