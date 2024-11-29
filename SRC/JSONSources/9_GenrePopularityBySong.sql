@@ -23,5 +23,5 @@ SELECT JSON_ARRAYAGG(
 
 END//
 DELIMITER ;
-DROP PROCEDURE GenrePopularityBySongs;
+
 CALL GenrePopularityBySongs();

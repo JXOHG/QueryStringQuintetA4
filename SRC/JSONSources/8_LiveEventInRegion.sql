@@ -21,5 +21,4 @@ SELECT JSON_ARRAYAGG(
 
 END//
 DELIMITER ;
-DROP PROCEDURE LiveEventInRegion;
 CALL LiveEventInRegion();

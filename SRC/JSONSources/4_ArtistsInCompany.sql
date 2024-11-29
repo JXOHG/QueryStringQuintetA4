@@ -23,5 +23,4 @@ END$$
 
 DELIMITER ;
 
-DROP PROCEDURE ArtistsInCompany;
 CALL ArtistsInCompany();

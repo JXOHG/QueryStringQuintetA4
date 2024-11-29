@@ -31,5 +31,4 @@ END$$
 
 DELIMITER ;
 
-DROP PROCEDURE AwardsForArtist;
 CALL AwardsForArtist();

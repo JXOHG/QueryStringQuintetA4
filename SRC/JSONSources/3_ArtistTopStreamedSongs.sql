@@ -2,7 +2,7 @@ USE SongSelector;
 DELIMITER //
 CREATE PROCEDURE artistTopStreamedSongs()
 BEGIN 
- SELECT JSON_ARRAYAGG(
+    SELECT JSON_ARRAYAGG(
         JSON_OBJECT(
             'ISRCCode', s.ISRCCode,
             'Song Title', s.Title,
@@ -10,16 +10,14 @@ BEGIN
             'Member First Name', b.FirstName,
             'Member Last Name', b.LastName,
             'Streams', s.Streams
-        )	
-)
-from membership m join song s on s.AuthorArtistID = m.ArtistID join member b on b.MemberID = m.MemberID join artist a on a.SpotifyID = m.ArtistID
-where (b.FirstName = 'Montero' and b.LastName = 'West') or a.Name = 'Whimsical Fantasies'
--- where (b.FirstName = 'Montero' and b.LastName = 'West')
--- where a.Name = 'Whimsical Fantasies'
-order by s.Streams desc
-limit 5;
-
-END//
+        )
+    ) AS TopSongs
+    FROM membership m 
+    JOIN song s ON s.AuthorArtistID = m.ArtistID 
+    JOIN member b ON b.MemberID = m.MemberID 
+    JOIN artist a ON a.SpotifyID = m.ArtistID
+    WHERE (b.FirstName = 'Montero' AND b.LastName = 'West') OR a.Name = 'Whimsical Fantasies'
+    ORDER BY s.Streams DESC
+    LIMIT 5;
+END //
 DELIMITER ;
-
-call artistTopStreamedSongs();

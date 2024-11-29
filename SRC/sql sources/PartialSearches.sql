@@ -4,9 +4,10 @@ CREATE PROCEDURE SearchSongs(IN search_term VARCHAR(60))
 BEGIN
     SELECT ISRCCode, Title, ReleaseDate, Streams, Sales, AuthorArtistID, AlbumID
     FROM Song
-    WHERE Name LIKE CONCAT('%', search_term, '%')
+    WHERE Title LIKE CONCAT('%', search_term, '%')
     ORDER BY Title DESC;
 END //
+
 
 
 --  Procedure to search for albums by partial name
@@ -14,15 +15,7 @@ CREATE PROCEDURE SearchAlbums(IN search_term VARCHAR(60))
 BEGIN
     SELECT AlbumID, Title, AuthorArtistID, NumberOfSongs, RelaseDate
     FROM Album
-    WHERE Name LIKE CONCAT('%', search_term, '%')
-    ORDER BY Title DESC;
-END //
---  Procedure to search for albums by partial name
-CREATE PROCEDURE SearchAlbums(IN search_term VARCHAR(60))
-BEGIN
-    SELECT AlbumID, Title, AuthorArtistID, NumberOfSongs, RelaseDate
-    FROM Album
-    WHERE Name LIKE CONCAT('%', search_term, '%')
+    WHERE Title LIKE CONCAT('%', search_term, '%')
     ORDER BY Title DESC;
 END //
 
@@ -41,7 +34,7 @@ CREATE PROCEDURE SearchLabels(IN search_term VARCHAR(60))
 BEGIN
 	SELECT LabelID, LabelName, CompanyName, Type
     FROM Label
-    WHERE Name LIKE CONCAT('%', search_term, '%')
+    WHERE LabelName LIKE CONCAT('%', search_term, '%')
     ORDER BY LabelName DESC;
 END //
 

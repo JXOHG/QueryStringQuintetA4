@@ -13,6 +13,7 @@ import EventsPage from './pages/EventsPage'
 import ProducersPage from './pages/ProducersPage'
 import GenresPage from './pages/GenresPage'
 import { Button } from "@/components/ui/button"
+import InsertPage from "./pages/InsertPage"
 
 export default function App() {
   return (
@@ -26,6 +27,7 @@ export default function App() {
               <Link to="/artists"><Button variant="secondary">Artists</Button></Link>
               <Link to="/albums"><Button variant="secondary">Albums</Button></Link>
               <Link to="/labels"><Button variant="secondary">Labels</Button></Link>
+              <Link to="/insert"><Button variant="secondary">Insert</Button></Link>
             </div>
           </nav>
         </header>
@@ -44,6 +46,7 @@ export default function App() {
             <Route path="/events" element={<EventsPage />} />
             <Route path="/producers" element={<ProducersPage />} />
             <Route path="/genres" element={<GenresPage />} />
+            <Route path="/insert" element={<InsertPage />} />
           </Routes>
         </main>
 

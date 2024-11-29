@@ -23,5 +23,4 @@ SELECT JSON_ARRAYAGG(
 
 END//
 DELIMITER ;
-DROP PROCEDURE SongsByProducerInGenre;
 CALL SongsByProducerInGenre();

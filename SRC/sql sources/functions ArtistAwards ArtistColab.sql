@@ -72,13 +72,5 @@ BEGIN
     ORDER BY s.ReleaseDate DESC;
 END //
 
--- Optional: Procedure to search for artists by partial name
-CREATE PROCEDURE SearchArtists(IN search_term VARCHAR(60))
-BEGIN
-    SELECT SpotifyID, Name, CreationYear, MonthlyListeners
-    FROM Artist
-    WHERE Name LIKE CONCAT('%', search_term, '%')
-    ORDER BY MonthlyListeners DESC;
-END //
 
 DELIMITER ;

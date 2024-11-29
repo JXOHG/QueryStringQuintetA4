@@ -54,7 +54,7 @@ def search():
     search_type = request.args.get('type')
     search_term = request.args.get('term')
     
-    query = f"SELECT * FROM {search_type}s WHERE name LIKE %s"
+    query = f"SELECT * FROM {search_type} WHERE name LIKE %s"
     results = execute_query(query, (f"%{search_term}%",))
     return jsonify(results)
 
@@ -62,7 +62,7 @@ def search():
 def search_labels():
     search_term = request.args.get('term')
     try:
-        query = ""
+        query = "CALL SearchLabels(%s)"
         results = execute_query(query, (search_term,))
         print("API Response:", results)
         return jsonify(results)
@@ -74,7 +74,7 @@ def search_labels():
 def search_albums():
     search_term = request.args.get('term')
     try:
-        query = ""
+        query = "CALL SearchAlbums(%s)"
         results = execute_query(query, (search_term,))
         print("API Response:", results)
         return jsonify(results)
@@ -86,7 +86,7 @@ def search_albums():
 def search_songs():
     search_term = request.args.get('term')
     try:
-        query = ""
+        query = "CALL SearchSongs(%s)"
         results = execute_query(query, (search_term,))
         print("API Response:", results)
         return jsonify(results)
@@ -106,6 +106,17 @@ def search_artists():
     except Error as e:
         print(f"Error in search_artists: {e}")
         return jsonify({"error": str(e)}), 500
+@app.route('/api/featured-awards', methods=['GET'])
+def get_featured_awards():
+    query = "SELECT * FROM artistswithaward"
+    results = execute_query(query)
+    return jsonify(results)
+
+@app.route('/api/featured-artists-by-country', methods=['GET'])
+def get_featured_artists_by_country():
+    query = "SELECT * FROM artistsinregion"
+    results = execute_query(query)
+    return jsonify(results)
 
 @app.route('/api/stats', methods=['GET'])
 def get_stats():
@@ -118,83 +129,57 @@ def get_stats():
 
 @app.route('/api/collaborations', methods=['GET'])
 def get_collaborations():
-    artist = request.args.get('artist')
-    query = """
-    SELECT DISTINCT a2.name AS collaborator, s.title AS song
-    FROM artists a1
-    JOIN song_artists sa1 ON a1.id = sa1.artist_id
-    JOIN songs s ON sa1.song_id = s.id
-    JOIN song_artists sa2 ON s.id = sa2.song_id
-    JOIN artists a2 ON sa2.artist_id = a2.id
-    WHERE a1.name = %s AND a2.name != %s
-    """
-    results = execute_query(query, (artist, artist))
-    return jsonify(results)
+    search_term = request.args.get('term')
+    try:
+        query = "CALL GetArtistCollaborationsByName(%s)"
+        results = execute_query(query, (search_term,))
+        print("API Response:", results)
+        return jsonify(results)
+    except Error as e:
+        print(f"Error in search_artists: {e}")
+        return jsonify({"error": str(e)}), 500
+    
 
 @app.route('/api/awards', methods=['GET'])
 def get_awards():
-    artist = request.args.get('artist')
-    query = """
-    SELECT aw.name AS award, aw.year
-    FROM artists a
-    JOIN artist_awards aa ON a.id = aa.artist_id
-    JOIN awards aw ON aa.award_id = aw.id
-    WHERE a.name = %s
-    ORDER BY aw.year DESC
-    """
-    results = execute_query(query, (artist,))
-    return jsonify(results)
+    search_term = request.args.get('term')
+    try:
+        query = "CALL GetArtistAwardsByName(%s)"
+        results = execute_query(query, (search_term,))
+        print("API Response:", results)
+        return jsonify(results)
+    except Error as e:
+        print(f"Error in get_awards: {e}")
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/api/top-streamed', methods=['GET'])
 def get_top_streamed():
-    artist = request.args.get('artist')
-    query = """
-    SELECT s.title, s.stream_count
-    FROM songs s
-    JOIN song_artists sa ON s.id = sa.song_id
-    JOIN artists a ON sa.artist_id = a.id
-    WHERE a.name = %s
-    ORDER BY s.stream_count DESC
-    LIMIT 5
-    """
-    results = execute_query(query, (artist,))
-    return jsonify(results)
-
-@app.route('/api/companies-net-worth', methods=['GET'])
-def get_companies_net_worth():
-    region = request.args.get('region')
-    query = """
-    SELECT SUM(net_worth) AS total_net_worth
-    FROM companies
-    WHERE region = %s
-    """
-    results = execute_query(query, (region,))
-    return jsonify(results[0] if results else {"total_net_worth": 0})
+    search_term = request.args.get('term')
+    try:
+        query = "CALL artistTopStreamedSongs(%s)"
+        results = execute_query(query, (search_term,))
+        print("API Response:", results)
+        return jsonify(results)
+    except Error as e:
+        print(f"Error in get_top_streamed: {e}")
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/api/active-members', methods=['GET'])
 def get_active_members():
-    artist = request.args.get('artist')
-    query = """
-    SELECT m.name, m.role
-    FROM artists a
-    JOIN artist_members am ON a.id = am.artist_id
-    JOIN members m ON am.member_id = m.id
-    WHERE a.name = %s AND am.is_active = 1
-    """
-    results = execute_query(query, (artist,))
-    return jsonify(results)
+    search_term = request.args.get('term')
+    try:
+        query = "CALL ArtistActiveMembers(%s)"
+        results = execute_query(query, (search_term,))
+        print("API Response:", results)
+        return jsonify(results)
+    except Error as e:
+        print(f"Error in get_active_members: {e}")
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/api/top-labels', methods=['GET'])
 def get_top_labels():
-    query = """
-    SELECT l.name, COUNT(DISTINCT a.id) AS active_artists
-    FROM labels l
-    JOIN artists a ON l.id = a.label_id
-    WHERE a.is_active = 1
-    GROUP BY l.id
-    ORDER BY active_artists DESC
-    LIMIT 3
-    """
+    query = "CALL GetTop3ActiveLabels()"
+    
     results = execute_query(query)
     return jsonify(results)
 
@@ -255,5 +240,41 @@ def get_top_genres():
     results = execute_query(query)
     return jsonify(results)
 
+@app.route('/api/insert', methods=['POST'])
+def insert_data():
+    data = request.json
+    table = data.get('table')
+    fields = data.get('fields')
+    
+    if not table or not fields:
+        return jsonify({"error": "Missing table or fields"}), 400
+    
+    connection = get_db_connection()
+    if connection is None:
+        return jsonify({"error": "Database connection failed"}), 500
+
+    try:
+        cursor = connection.cursor()
+        
+        columns = ', '.join(fields.keys())
+        placeholders = ', '.join(['%s'] * len(fields))
+        values = tuple(fields.values())
+        
+        query = f"INSERT INTO {table} ({columns}) VALUES ({placeholders})"
+        
+        cursor.execute(query, values)
+        connection.commit()
+        
+        inserted_id = cursor.lastrowid
+        
+        return jsonify({"message": "Data inserted successfully", "id": inserted_id}), 201
+    
+    except Error as e:
+        return jsonify({"error": str(e)}), 500
+    
+    finally:
+        if connection.is_connected():
+            cursor.close()
+            connection.close()
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=int(os.getenv('DB_PORT', 5000)))
