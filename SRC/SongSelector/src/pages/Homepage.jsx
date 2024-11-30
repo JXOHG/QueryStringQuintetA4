@@ -338,7 +338,7 @@ export default function Homepage() {
           </CardHeader>
           <CardContent>
             <p>Total Songs: {stats.songs}</p>
-            <Link to="/songs"><Button>View All Songs</Button></Link>
+            <Link to="/songs"><Button>View All Songs Functions</Button></Link>
           </CardContent>
         </Card>
 
@@ -349,7 +349,7 @@ export default function Homepage() {
           </CardHeader>
           <CardContent>
             <p>Total Artists: {stats.artists}</p>
-            <Link to="/artists"><Button>View All Artists</Button></Link>
+            <Link to="/artists"><Button>View All Artists Functions</Button></Link>
           </CardContent>
         </Card>
 
@@ -360,7 +360,7 @@ export default function Homepage() {
           </CardHeader>
           <CardContent>
             <p>Total Albums: {stats.albums}</p>
-            <Link to="/albums"><Button>View All Albums</Button></Link>
+            <Link to="/albums"><Button>View All Album Functions</Button></Link>
           </CardContent>
         </Card>
       </div>

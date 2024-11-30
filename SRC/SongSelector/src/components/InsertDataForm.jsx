@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 
- const API_BASE_URL = 'http://localhost:5000'
+const API_BASE_URL = 'http://localhost:5000'
 const tableFields = {
-  artists: ['SpotifyID', 'Name', 'CreationYear', 'EndYear', 'YearsActive', 'NumberOfMembers', 'MonthlyListeners', 'FromRegion', 'LabelID'],
-  songs: ['ISRCCode', 'Title', 'ReleaseDate', 'Streams', 'Sales', 'AuthorArtistID', 'AlbumID'],
-  albums: ['AlbumID', 'Title', 'AuthorArtistID', 'NumberOfSongs', 'ReleaseDate'],
-  labels: ['LabelID', 'LabelName', 'CompanyName', 'Type']
+  artist: ['SpotifyID', 'Name', 'CreationYear', 'EndYear', 'YearsActive', 'NumberOfMembers', 'MonthlyListeners', 'FromRegion', 'LabelID'],
+  song: ['ISRCCode', 'Title', 'ReleaseDate', 'Streams', 'Sales', 'AuthorArtistID', 'AlbumID'],
+  album: ['AlbumID', 'Title', 'AuthorArtistID', 'NumberOfSongs', 'ReleaseDate'],
+  label: ['LabelID', 'LabelName', 'CompanyName', 'Type']
 };
 
 export function InsertDataForm() {
@@ -34,7 +34,7 @@ export function InsertDataForm() {
     setMessage('');
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/insert`,  {
+      const response = await fetch(`${API_BASE_URL}/api/insert`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -45,15 +45,17 @@ export function InsertDataForm() {
         }),
       });
 
+      const result = await response.json();
+
       if (!response.ok) {
-        throw new Error('Failed to insert data');
+        throw new Error(result.error || 'Failed to insert data');
       }
 
-      const result = await response.json();
       setMessage(`Data inserted successfully with ID: ${result.id}`);
       setFormData({});
     } catch (error) {
-      setMessage('Failed to insert data. Please try again.');
+      console.error('Error inserting data:', error);
+      setMessage(`Failed to insert data: ${error.message}`);
     } finally {
       setIsLoading(false);
     }

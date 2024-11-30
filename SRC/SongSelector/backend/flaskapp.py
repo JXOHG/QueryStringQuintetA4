@@ -84,7 +84,7 @@ def search_albums():
     
 @app.route('/api/song', methods=['GET'])
 def search_songs():
-    search_term = request.args.get('term')
+    search_term = request.args.get('query')
     try:
         query = "CALL SearchSongs(%s)"
         results = execute_query(query, (search_term,))
@@ -185,27 +185,14 @@ def get_top_labels():
 
 @app.route('/api/artist-songs', methods=['GET'])
 def get_artist_songs():
-    query = """
-    SELECT a.name, COUNT(DISTINCT s.id) AS total_songs
-    FROM artists a
-    JOIN song_artists sa ON a.id = sa.artist_id
-    JOIN songs s ON sa.song_id = s.id
-    GROUP BY a.id
-    ORDER BY total_songs DESC
-    """
+    query = "CALL TotalSongNumByArtist()"
     results = execute_query(query)
     return jsonify(results)
 
 @app.route('/api/live-events', methods=['GET'])
 def get_live_events():
     region = request.args.get('region')
-    query = """
-    SELECT e.name, e.date, v.name AS venue
-    FROM events e
-    JOIN venues v ON e.venue_id = v.id
-    WHERE v.region = %s AND e.date >= CURDATE()
-    ORDER BY e.date
-    """
+    query = "CALL LiveEventInRegion(%s)"
     results = execute_query(query, (region,))
     return jsonify(results)
 
@@ -213,30 +200,19 @@ def get_live_events():
 def get_producer_contributions():
     producer = request.args.get('producer')
     genre = request.args.get('genre')
-    query = """
-    SELECT COUNT(DISTINCT s.id) AS total_songs,
-           GROUP_CONCAT(DISTINCT a.name SEPARATOR ', ') AS notable_artists
-    FROM producers p
-    JOIN song_producers sp ON p.id = sp.producer_id
-    JOIN songs s ON sp.song_id = s.id
-    JOIN genres g ON s.genre_id = g.id
-    JOIN song_artists sa ON s.id = sa.song_id
-    JOIN artists a ON sa.artist_id = a.id
-    WHERE p.name = %s AND g.name = %s
-    """
-    results = execute_query(query, (producer, genre))
-    return jsonify(results[0] if results else {"total_songs": 0, "notable_artists": ""})
+    try:
+        query = "CALL SongsByProducerInGenre(%s,%s)"
+        results = execute_query(query, (producer,genre))
+        print("API Response:", results)
+        return jsonify(results)
+    
+    except Error as e:
+        print(f"Error in get_producer_contributions: {e}")
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/api/top-genres', methods=['GET'])
 def get_top_genres():
-    query = """
-    SELECT g.name, COUNT(s.id) AS song_count
-    FROM genres g
-    JOIN songs s ON g.id = s.genre_id
-    GROUP BY g.id
-    ORDER BY song_count DESC
-    LIMIT 10
-    """
+    query = "CALL GenrePopularityBySongs()"
     results = execute_query(query)
     return jsonify(results)
 

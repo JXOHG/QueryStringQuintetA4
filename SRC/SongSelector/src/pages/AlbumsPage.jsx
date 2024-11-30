@@ -2,8 +2,17 @@ import React, { useState } from 'react'
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 
 export default function AlbumsPage() {
+  const API_BASE_URL = 'http://localhost:5000'
   const [searchTerm, setSearchTerm] = useState('')
   const [albums, setAlbums] = useState([])
 
@@ -11,9 +20,9 @@ export default function AlbumsPage() {
     e.preventDefault()
     // TODO: Implement API call to backend
     console.log(`Searching for albums: ${searchTerm}`)
-    // const response = await fetch(`/api/albums?search=${searchTerm}`)
-    // const data = await response.json()
-    // setAlbums(data)
+    const response = await fetch(`${API_BASE_URL}/api/album?term=${searchTerm}`)
+    const data = await response.json()
+    setAlbums(data)
   }
 
   return (
@@ -38,21 +47,34 @@ export default function AlbumsPage() {
       </Card>
 
       {albums.length > 0 && (
-        <Card>
+        <Card className="mb-6">
           <CardHeader>
-            <CardTitle>Search Results</CardTitle>
+            <CardTitle>Search Result</CardTitle>
           </CardHeader>
           <CardContent>
-            <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {albums.map((album, index) => (
-                <li key={index} className="border rounded-lg p-4">
-                  <h3 className="font-semibold">{album.title}</h3>
-                  <p>Artist: {album.artist}</p>
-                  <p>Release Year: {album.releaseYear}</p>
-                  <p>Genre: {album.genre}</p>
-                </li>
-              ))}
-            </ul>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Title</TableHead>
+                  <TableHead>Album ID</TableHead>
+                  <TableHead>Author ID</TableHead>
+                  <TableHead>Number of Songs</TableHead>
+                  <TableHead>Release Date</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {albums.map((albums) => (
+                  <TableRow key={albums.AlbumID}>
+                    <TableCell>{albums.Title}</TableCell>
+                    <TableCell>{albums.AlbumID}</TableCell>
+                    <TableCell>{albums.AuthorArtistID}</TableCell>
+                    <TableCell>{albums.NumberOfSongs}</TableCell>
+                    <TableCell>{albums.ReleaseDate}</TableCell>
+                    
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </CardContent>
         </Card>
       )}
